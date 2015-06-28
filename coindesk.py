@@ -81,5 +81,9 @@ for currency_mnemonic in currencies:
 
 # save and finish
 
-book.save()
+if (book.is_saved):
+    print("No changes from %s" % (source))
+    book.cancel() # this still seems to create a backup file
+else:
+    book.save()
 
