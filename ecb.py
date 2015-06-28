@@ -5,7 +5,7 @@
 
 import piecash
 from decimal import Decimal
-from datetime import *
+from datetime import date, datetime, timedelta, timezone
 from urllib import request
 from xml.etree import ElementTree
 
