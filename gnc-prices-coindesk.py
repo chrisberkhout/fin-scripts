@@ -14,7 +14,8 @@ import json
 
 # config
 
-book_file   = '/home/chris/Documents/Finances/SCRATCH.gnucash'
+book_file   = '/home/chris/Documents/Finances/Accounts.gnucash'
+# book_file   = '/home/chris/Documents/Finances/SCRATCH.gnucash'
 source      = 'CoinDesk Bitcoin Price Index'
 currencies  = { 'AUD', 'EUR' }
 start_date  = date(datetime.utcnow().date().year - 1, 1, 1)
