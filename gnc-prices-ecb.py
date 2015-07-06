@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Fetch historical prices from the European Central Bank for EUR-AUD
+# and add them to a GnuCash file.
+
 # ECB Euro foreign exchange reference rates
 # https://www.ecb.europa.eu/stats/exchange/eurofxref/html/index.en.html
 

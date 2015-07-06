@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Fetch historical prices from CoinDesk for Bitcoin
+# and add them to a GnuCash file.
+
 # CoinDesk Bitcion Price Index
 # http://www.coindesk.com/api/
 
