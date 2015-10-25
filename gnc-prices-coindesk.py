@@ -64,7 +64,8 @@ for currency_mnemonic in currencies:
     commodity = book.currencies(mnemonic='XBT')
     currency = book.currencies(mnemonic=currency_mnemonic)
 
-    base_url  = "https://api.coindesk.com/v1/bpi/historical/close.json?index=USD"
+    # 2015-10-25 - noticed that https version of this fails in python and firefox - possible missing intermediate cert
+    base_url  = "http://api.coindesk.com/v1/bpi/historical/close.json?index=USD"
     start = str(start_date)
     end = str(date_today-timedelta(1))
     source_url  = "%s&currency=%s&start=%s&end=%s" % (base_url, currency_mnemonic, start, end)
