@@ -14,8 +14,7 @@ from xml.etree import ElementTree
 
 # config
 
-book_file   = '/home/chris/Documents/Finances/Accounts.gnucash'
-# book_file   = '/home/chris/Documents/Finances/SCRATCH.gnucash'
+book_file   = '/home/chris/Documents/Finances/accounts/Accounts.gnucash'
 source      = 'ECB Euro foreign exchange reference rates'
 # source_url  = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist-90d.xml' # last 90 days
 source_url  = 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-hist.xml' # since 1999
