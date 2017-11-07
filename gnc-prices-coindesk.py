@@ -64,10 +64,10 @@ for currency_mnemonic in currencies:
     currency = book.currencies(mnemonic=currency_mnemonic)
 
     # 2015-10-25 - noticed that https version of this fails in python and firefox - possible missing intermediate cert
-    base_url  = "http://api.coindesk.com/v1/bpi/historical/close.json?index=USD"
+    base_url  = "http://api.coindesk.com/v1/bpi/historical/close.json"
     start = str(start_date)
     end = str(date_today-timedelta(1))
-    source_url  = "%s&currency=%s&start=%s&end=%s" % (base_url, currency_mnemonic, start, end)
+    source_url  = "%s?currency=%s&start=%s&end=%s" % (base_url, currency_mnemonic, start, end)
 
     url = request.urlopen(source_url)
     data = json.loads(url.read().decode('utf-8'))
