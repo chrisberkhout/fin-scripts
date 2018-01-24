@@ -69,7 +69,7 @@ for currency_mnemonic in currencies:
     end = str(date_today-timedelta(1))
     source_url  = "%s&currency=%s&start=%s&end=%s" % (base_url, currency_mnemonic, start, end)
 
-    url = request.urlopen(source_url)
+    url = request.urlopen(request.Request(source_url, headers={'User-Agent': 'Mozilla/5.0'}))
     data = json.loads(url.read().decode('utf-8'))
     url.close()
 
