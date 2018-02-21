@@ -18,8 +18,8 @@ def generate_url(name, start, end):
     end_param = end.replace('-','')
     return f'https://coinmarketcap.com/currencies/{name}/historical-data/?start={start_param}&end={end_param}'
 
-def parse(html):
-    table = tree.xpath('//*[@id="historical-data"]//table')[0]
+def parse(document):
+    table = document.xpath('//*[@id="historical-data"]//table')[0]
     headers = [th.text for th in table.xpath('//th')]
     for tr in table.xpath('//tr[td]'):
         fields = [td.text for td in tr.xpath('td')]
@@ -30,9 +30,9 @@ def parse(html):
 def get(name, start, end):
     url = generate_url(name, start, end)
     page = requests.get(url)
-    html = html.fromstring(page.content)
-    parse(html).sort(key=lambda item: item['Date'])
+    parsed = parse(html.fromstring(page.content))
+    return sorted(parsed, key=lambda item: item['Date'])
 
 d = get('bitcoin', '2017-09-21', '2017-12-21')
-d[-1]
+print(d[-1])
 
