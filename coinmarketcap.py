@@ -7,7 +7,6 @@ from decimal import Decimal
 import re
 from collections import namedtuple
 
-# TODO append to ledger file
 # TODO read last from ledger file to request correct range
 # TODO error handling
 
@@ -28,7 +27,7 @@ def parse_rows(document):
         fields[1:] = [Decimal(field.replace(',','')) for field in fields[1:]]
         yield Row(*fields)
 
-HistoricalData = namedtuple('HistoricalData', ['identifier', 'name', 'code', 'rows'])
+HistoricalData = namedtuple('HistoricalData', ['identifier', 'name', 'code', 'currency', 'rows'])
 
 def get(identifier, start, end):
     url = generate_url(identifier, start, end)
@@ -40,12 +39,16 @@ def get(identifier, start, end):
     name = m.group('name')
     code = m.group('code')
 
+    currency = 'USD'
     rows = sorted(parse_rows(document), key=lambda item: item.date)
 
-    return HistoricalData(identifier, name, code, rows)
+    return HistoricalData(identifier, name, code, currency, rows)
 
-d = get('bitcoin', '2017-09-21', '2017-12-21')
-print(d)
-print()
-print(d.rows[-1])
+def print_pricedb(data):
+    for row in data.rows:
+        date = str(row.date).translate(str.maketrans('-','/'))
+        time = '00:00:00'
+        print(f"P {date} {time} {data.code} {data.currency} {row.open}")
 
+d = get('ripple', '2017-09-21', '2017-12-21')
+print_pricedb(d)
