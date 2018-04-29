@@ -3,6 +3,7 @@
 import requests
 from lxml import html
 from datetime import datetime
+from datetime import timedelta
 from decimal import Decimal
 import re
 from collections import namedtuple
@@ -50,5 +51,34 @@ def print_pricedb(data):
         time = '00:00:00'
         print(f"P {date} {time} {data.code} {data.currency} {row.open}")
 
-d = get('ripple', '2017-09-21', '2017-12-21')
-print_pricedb(d)
+# d = get('ripple', '2017-09-21', '2017-12-21')
+# print(d)
+# print()
+# print(d.rows[-1])
+# print_pricedb(d)
+
+print("--------------------------------------------------")
+print()
+
+def dates_following(filename):
+    start = last_price_date(filename) + timedelta(days=1)
+    end = datetime.now().date()
+    return (start, end)
+
+def last_price_date(filename):
+    return sorted(price_dates(filename))[-1]
+
+def price_dates(filename):
+    with open(filename, 'r') as f:
+        for line in f.read().splitlines():
+            match = re.match(r"^P (\d{4}).(\d\d).(\d\d) ", line)
+            if (match):
+                date = datetime.strptime(match.expand("\g<1>\g<2>\g<3>"), '%Y%m%d').date()
+                yield date
+
+d1, d2 = dates_following("ripple.pricedb")
+print(str(d1))
+print(str(d2))
+
+# print(str(last_price_date("ripple.pricedb")))
+
