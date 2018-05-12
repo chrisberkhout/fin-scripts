@@ -2,8 +2,7 @@
 
 import requests
 from lxml import html
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 import re
 from collections import namedtuple
@@ -88,7 +87,7 @@ def price_dates(filename):
 def last_price_date(filename):
     return sorted(price_dates(filename))[-1]
 
-#---argument parsing------------------------------------------------------------
+#---argument-parsing------------------------------------------------------------
 
 def valid_date(s):
     if s == 'today':
