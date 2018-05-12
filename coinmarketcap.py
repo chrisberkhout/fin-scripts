@@ -8,8 +8,7 @@ from decimal import Decimal
 import re
 from collections import namedtuple
 import argparse
-
-# TODO error handling
+import sys
 
 #---fetch-----------------------------------------------------------------------
 
@@ -32,7 +31,7 @@ def parse_rows(document):
     table = document.xpath('//*[@id="historical-data"]//table')[0]
     headers = [normalize_header_name(th.text) for th in table.xpath('//th')]
     Row = namedtuple('Row', headers)
-    for tr in table.xpath('//tr[td]'):
+    for tr in table.xpath('//tr[count(td) >1]'):
         fields = [td.text for td in tr.xpath('td')]
         fields[0] = datetime.strptime(fields[0], '%b %d, %Y').date() # TODO force %b to be locale US_en - https://stackoverflow.com/questions/18593661/how-do-i-strftime-a-date-object-in-a-different-locale
         fields[1:] = [parse_number(field) for field in fields[1:]]
@@ -61,17 +60,22 @@ def print_pricedb(data):
         time = '00:00:00'
         print(f"P {date} {time} {data.code} {data.currency} {row.open}")
 
-#---read-dates-from-file--------------------------------------------------------
+def print_csv(data):
+    top_fields = data._fields[0:-1]
+    top_values = [str(getattr(data, f)) for f in top_fields]
+    if not data.rows:
+        print("WARNING: no price data", file=sys.stderr)
+        print(",".join(top_fields))
+        print(",".join(top_values))
+    else:
+        row_fields = data.rows[0]._fields
+        print(",".join(top_fields + row_fields))
+        for row in data.rows:
+            row_values = [str(getattr(row, f)) for f in row_fields]
+            full_row = ",".join(top_values + row_values)
+            print(full_row)
 
-# TODO remove unused code here
-
-def dates_following(filename):
-    start = last_price_date(filename) + timedelta(days=1)
-    end = datetime.now().date()
-    return (start, end)
-
-def last_price_date(filename):
-    return sorted(price_dates(filename))[-1]
+#---read-dates-from-ledger-file-------------------------------------------------
 
 def price_dates(filename):
     with open(filename, 'r') as f:
@@ -81,17 +85,14 @@ def price_dates(filename):
                 date = datetime.strptime(match.expand("\g<1>\g<2>\g<3>"), '%Y%m%d').date()
                 yield date
 
-# d1, d2 = dates_following("ripple.pricedb")
-# print(str(d1))
-# print(str(d2))
+def last_price_date(filename):
+    return sorted(price_dates(filename))[-1]
 
-# print(str(last_price_date("ripple.pricedb")))
+#---argument parsing------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-
-def valid_date_str(s):
+def valid_date(s):
     if s == 'today':
-        return today_str()
+        return today()
     try:
         datetime.strptime(s, "%Y-%m-%d")
         return s
@@ -99,31 +100,38 @@ def valid_date_str(s):
         msg = "Not a valid date: '{0}'.".format(s)
         raise argparse.ArgumentTypeError(msg)
 
-def today_str():
+def today():
     return str(datetime.now().date())
 
-parser = argparse.ArgumentParser(description='Fetch historical data from CoinMarketCap.com.')
+def start_after(filename):
+    return str(last_price_date(filename) + timedelta(days=1))
+
+parser = argparse.ArgumentParser(description='Fetch historical price data from CoinMarketCap.com.')
 
 parser.add_argument('identifier', metavar='ID', type=str,
-                    help='currency or coin identifier (example: bitcoin)')
+                    help='currency or coin identifier from URL (example: bitcoin-cash)')
 
-parser.add_argument('--start', dest='start', type=valid_date_str,
+parser.add_argument('--start', dest='start', type=valid_date,
                     default='2009-01-03',
                     help='start date (default: 2009-01-03)')
 
-parser.add_argument('--end', dest='end', type=valid_date_str,
-                    default=today_str(),
+parser.add_argument('--start-after', dest='start', metavar='FILE', type=start_after,
+                    help='Ledger file with prices to start after')
+
+parser.add_argument('--end', dest='end', type=valid_date,
+                    default=today(),
                     help='end date (default: today)')
+
+parser.add_argument('--csv', dest='csv', action='store_true',
+                    help='print full data as csv (instead of Ledger pricedb format)')
+
+#---run-------------------------------------------------------------------------
 
 args = parser.parse_args()
 
-# TODO add argument --start-after PRICEDB
-# TODO add argument --full, to print full info instead of pricedb
+data = get(args.identifier, args.start, args.end)
 
-# print(args.identifier)
-# print(args.start)
-# print(args.end)
-
-d = get(args.identifier, args.start, args.end)
-print_pricedb(d)
-
+if args.csv:
+    print_csv(data)
+else:
+    print_pricedb(data)
